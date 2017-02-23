@@ -21,7 +21,7 @@
             <th>Date</th>
         </tr>
         {% for name in names %}
-            <tr><td>{{ name.0 }}<td><td>{{ name.1 }}</td></tr>
+            <tr><td>{{ name.0|safe }}<td><td>{{ name.1|safe }}</td></tr>
         {% endfor %}
     </table>
 </body>
