@@ -27,6 +27,16 @@ def db_connect():
                          passwd='itsvariable17', db='webapp')
     return db
 
+def get_entries():
+    """
+        Retrieves all the entries in our database
+    """
+    cur = db.cursor()
+    cur.execute("SELECT name, date FROM names")
+    entries = cur.fetchall()
+    # add output sanitizing here
+    return entries
+
 
 @app.route('/', methods=['GET'])
 def index():
@@ -35,7 +45,8 @@ def index():
 
         :return index.html: our homepage
     """
-    return render_template('index.html') 
+    entires = get_entries()
+    return render_template('index.html', names=entries) 
 
 
 @app.route('/upload', methods=['POST'])
@@ -57,7 +68,8 @@ def upload():
         f.save(os.path.join(app.config['UPLOAD_FOLDER'], fname))
         flash('File uploaded successfully')
     
-    return render_template('index.html')
+    entries = get_entries()
+    return render_template('index.html', names=entries)
 
 
 @app.route('/insert', methods=['POST'])
@@ -75,7 +87,8 @@ def insert():
     cur.execute("INSERT INTO names VALUES('%s', '%s')" % (name, now))
     db.commit()
 
-    return render_template('index.html')
+    entries = get_entries()
+    return render_template('index.html', names=entries)
 
 
 if __name__ == '__main__':

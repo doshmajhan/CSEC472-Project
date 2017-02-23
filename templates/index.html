@@ -15,5 +15,14 @@
         <input type="submit" value="Submit">
     </form>
     <br />
+    <table>
+        <tr>
+            <th>Names Entered</th>
+            <th>Date</th>
+        </tr>
+        {% for name in names %}
+            <tr><td>{{ name.0 }}<td><td>{{ name.1 }}</td></tr>
+        {% endfor %}
+    </table>
 </body>
 </html>
