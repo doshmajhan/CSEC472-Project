@@ -12,10 +12,15 @@ import time
 from flask import Flask, flash, render_template
 from werkzeug.utils import secure_filename
 
-UPLOAD_FOLDER = '/var/www/hmtl/uploads'
+UPLOAD_FOLDER = '/var/www/html/uploads'
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] ='DANK'
+
+def allowed_file(fname):
+    return '.' in fname and \
+        fname.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def db_connect():
     """
@@ -27,6 +32,7 @@ def db_connect():
                          passwd='itsvariable17', db='webapp')
     return db
 
+
 def get_entries():
     """
         Retrieves all the entries in our database
@@ -34,7 +40,6 @@ def get_entries():
     cur = db.cursor()
     cur.execute("SELECT name, date FROM names")
     entries = cur.fetchall()
-    # add output sanitizing here
     return entries
 
 
@@ -45,7 +50,7 @@ def index():
 
         :return index.html: our homepage
     """
-    entires = get_entries()
+    entries = get_entries()
     return render_template('index.html', names=entries) 
 
 
@@ -55,18 +60,18 @@ def upload():
         Handes the user 
     """
     if 'file' not in flask.request.files:
-        flash('No file part')
+        print 'No file part'
         return render_template('index.html')
     
     f = flask.request.files['file']
     if f.filename == '':
-        flash('No selected file')
+        print 'No selected file'
         return render_template('index.html')
     
-    if f:
+    if f and allowed_file(f.filename):
         fname = secure_filename(f.filename)
         f.save(os.path.join(app.config['UPLOAD_FOLDER'], fname))
-        flash('File uploaded successfully')
+        print 'File uploaded successfully'
     
     entries = get_entries()
     return render_template('index.html', names=entries)

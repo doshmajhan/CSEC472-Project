@@ -5,7 +5,7 @@
     <title>Hey there</title>
 </head>
 <body>
-    <form method='POST' action="/upload">
+    <form method='POST' action="/upload" enctype='multipart/form-data'>
         <input type="file" name="file">
         <input type="submit" value="Submit">
     </form><br />
@@ -21,7 +21,7 @@
             <th>Date</th>
         </tr>
         {% for name in names %}
-            <tr><td>{{ name.0|safe }}<td><td>{{ name.1|safe }}</td></tr>
+            <tr><td>{{ name.0 }}</td><td>{{ name.1 }}</td></tr>
         {% endfor %}
     </table>
 </body>

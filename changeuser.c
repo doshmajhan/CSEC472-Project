@@ -1,10 +1,11 @@
+#include <mysql/my_global.h>
 #include <mysql/mysql.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 
-MYSQL connect_db(){
+MYSQL * connect_db(){
     MYSQL *conn;
     char *server = "localhost";
     char *user = "root";
@@ -69,55 +70,75 @@ void login(){
 }
 
 
-int check_creds(char *username, char *password){
+int check_creds(char *username, char *password, MYSQL *conn){
     /*
         Checks if the entered credentials match any in the database  
 
     */
-    MYSQL_RES *res;
-    MYSQL_ROW row;
-    MYSQL_BIND bind[2];
+    MYSQL_BIND params[2];
+    MYSQL_BIND result[1];
     MYSQL_STMT *stmt;
-    char *query = "SELECT username FROM users WHERE username='?' AND password='?'"; 
+    int id;
+    my_bool is_null[1];
+
+    memset(params, 0, sizeof(params));
+    memset(result, 0, sizeof(result));
+
+    char *query = "SELECT id FROM users WHERE username='?' AND password='?'"; 
     stmt = mysql_stmt_init(conn);
     if(!stmt){
         fprintf(stderr, "mysql_stmt_init(), out of memory\n");
         exit(1);
     }
-    if(mysql_stmt_prepare(conn, query, strlen(query))){
+    if(mysql_stmt_prepare(stmt, query, strlen(query))){
         fprintf(stderr, "\n mysql_stmt_prepare(), INSERT failed");
         fprintf(stderr, "\n %s", mysql_stmt_error(stmt));
         exit(1);
     }
-    bind[0].buffer_type = MYSQL_TYPE_STRING;
-    bind[0].buffer = username;
-    bind[0].buffer_length = strlen(username);
-    bind[0].is_null = 0;
-    bind[0].length = 0;
+    printf("Binding\n");
+    params[0].buffer_type = MYSQL_TYPE_STRING;
+    params[0].buffer = username;
+    params[0].buffer_length = strlen(username);
+    params[0].is_null = 0;
+    params[0].length = 0;
     
-    bind[1].buffer_type = MYSQL_TYPE_STRING;
-    bind[1].buffer = password;
-    bind[1].buffer_length = strlen(password);
-    bind[1].is_null = 0;
-    bind[1].length = 0;
+    params[1].buffer_type = MYSQL_TYPE_STRING;
+    params[1].buffer = password;
+    params[1].buffer_length = strlen(password);
+    params[1].is_null = 0;
+    params[1].length = 0;
 
-    mysql_stmt_bind_param(stmt, bind);
+    unsigned long result_len = 0;
+    result[0].buffer_type = MYSQL_TYPE_LONG;
+    result[0].buffer = &id;
+    result[0].buffer_length = sizeof(id);
+    result[0].is_null = &is_null[0];
+    result[0].length = &result_len;
 
+    mysql_stmt_bind_param(stmt, params);
+    mysql_stmt_bind_result(stmt, result);
+    printf("Executing\n");
     if (mysql_stmt_execute(stmt)){
         fprintf(stderr, "%s\n", mysql_error(conn));
         exit(1);
     }
-    // do stuff ehre for checking
-    res = mysql_use_result(conn);
-    
-    while((row = mysql_fetch_row(res)) != NULL){
-        printf("%s \n", row[0]);
-    }
-    mysql_free_result(res);
-    
+
+    mysql_stmt_store_result(stmt);
+    mysql_stmt_fetch(stmt);
+    printf("%d\n", id);
+    printf("Freeing\n");
+    //mysql_free_result(stmt);
+    mysql_stmt_close(stmt);
+
+    return 0;
 }
 
 int main(int argc, char *argv[]){
-    login(); 
+    (void)argv;
+    (void)argc;
+    MYSQL *conn = connect_db();
+    printf("Checkin\n");
+    check_creds("cam", "clark", conn);
+    //login(); 
     return EXIT_SUCCESS;
 }
