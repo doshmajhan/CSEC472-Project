@@ -1,2 +1,0 @@
-gcc -std=c99 -Wall -Wextra -pedantic changeuser.c -o changeuser -I/usr/include/mysql
--L/usr/lib64/mysql -lmysqlclient -lpthread -lz -lm -lssl -lcrypto -ldl

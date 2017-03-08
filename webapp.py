@@ -12,32 +12,35 @@ import time
 from flask import Flask, flash, render_template
 from werkzeug.utils import secure_filename
 
-UPLOAD_FOLDER = '/var/www/html/uploads'
+class flask_db:
+    """
+        Contains variables for our flask app database connection
+
+    """
+
+    def __init__(self):
+        self.db = MySQLdb.connect(host='localhost', user='root',
+                         passwd='itsvariable17', db='webapp')
+
+
+UPLOAD_FOLDER = '/var/www/CSEC472-Project/uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] ='DANK'
+db = flask_db()
+
 
 def allowed_file(fname):
     return '.' in fname and \
         fname.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-def db_connect():
-    """
-        Connects to our SQL database
-
-        :returns db: the object for our database connection
-    """
-    db = MySQLdb.connect(host='localhost', user='root',
-                         passwd='itsvariable17', db='webapp')
-    return db
 
 
 def get_entries():
     """
         Retrieves all the entries in our database
     """
-    cur = db.cursor()
+    cur = db.db.cursor()
     cur.execute("SELECT name, date FROM names")
     entries = cur.fetchall()
     return entries
@@ -52,6 +55,15 @@ def index():
     """
     entries = get_entries()
     return render_template('index.html', names=entries) 
+
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    """ 
+        Returns a file that the user uploaded
+    """
+    filename = secure_filename(filename)
+    return flask.send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 @app.route('/upload', methods=['POST'])
@@ -87,15 +99,14 @@ def insert():
     if not name:
         return render_template('index.html')
 
-    cur = db.cursor()
+    cur = db.db.cursor()
     now = time.strftime("%x")
     cur.execute("INSERT INTO names VALUES('%s', '%s')" % (name, now))
-    db.commit()
+    db.db.commit()
 
     entries = get_entries()
     return render_template('index.html', names=entries)
 
 
 if __name__ == '__main__':
-    db = db_connect()
     app.run(host='0.0.0.0', port=5000)
