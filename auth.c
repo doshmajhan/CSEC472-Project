@@ -1,16 +1,16 @@
 #include <security/pam_appl.h>
 #include <security/pam_misc.h>
 #include <security/pam_modules.h>
+#include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <unistd.h>
 
 static struct pam_conv conv = {
     misc_conv,
     NULL
 };
-
 
 int pam_creds_check(){
     /*
@@ -62,4 +62,5 @@ int pam_creds_check(){
 int main(){
     pam_creds_check();
     return EXIT_SUCCESS;
+
 }
