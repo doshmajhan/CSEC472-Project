@@ -69,6 +69,7 @@ int pam_creds_check(){
         int ans = getchar();
         if(ans == 'Y'){
             retval = pam_chauthtok(pamh, PAM_SILENT);
+	    printf("%d\n", retval);
         }
     }
     else{
@@ -85,7 +86,13 @@ int pam_creds_check(){
 }
 
 int main(){
+    printf("%d\n", getuid());
+    printf("%d\n", geteuid());
+    setuid(0);
+    printf("%d\n", getuid());
     pam_creds_check();
+    setuid(1000);
+    printf("%d\n",  getuid());
     return EXIT_SUCCESS;
 
 }
