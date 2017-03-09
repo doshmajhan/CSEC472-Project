@@ -1,1 +1,1 @@
-gcc -std=c99 -Wall -Wextra auth.c -o auth -lpam -lpam_misc
+gcc -std=c99 -Wall -Wextra auth.c -o auth -ldl -lpam -lpam_misc

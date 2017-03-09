@@ -4,3 +4,4 @@ libpam0g-dev
 apache2
 mysql-server
 libapache2-mod-wsgi
+pam-devel
