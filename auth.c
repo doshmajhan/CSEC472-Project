@@ -49,7 +49,7 @@ int pam_creds_check(){
 	}
     }
     username[strlen(username)-1] = '\0';
-    printf("%s\n", username);
+    //printf("%s\n", username);
 
     retval = pam_start("login", username, &conv, &pamh);
     //retval = pam_get_user(pamh, &username, "Username: ");
@@ -57,11 +57,11 @@ int pam_creds_check(){
     if(retval == PAM_SUCCESS){
         retval = pam_authenticate(pamh, 0);
     }
-    printf("%d\n", retval);
+    //printf("%d\n", retval);
     if(retval == PAM_SUCCESS){
         retval = pam_acct_mgmt(pamh, 0);
     }
-    printf("%d\n", retval);
+    //printf("%d\n", retval);
     printf("Username: %s\n", username);
     if(retval == PAM_SUCCESS){
         fprintf(stdout, "Authenticated\n");
@@ -69,7 +69,7 @@ int pam_creds_check(){
         int ans = getchar();
         if(ans == 'Y'){
             retval = pam_chauthtok(pamh, PAM_SILENT);
-	    printf("%d\n", retval);
+	    //printf("%d\n", retval);
         }
     }
     else{
@@ -86,12 +86,12 @@ int pam_creds_check(){
 }
 
 int main(){
+    int orig_uid = getuid();
     printf("%d\n", getuid());
-    printf("%d\n", geteuid());
     setuid(0);
     printf("%d\n", getuid());
     pam_creds_check();
-    setuid(1000);
+    setuid(orig_uid);
     printf("%d\n",  getuid());
     return EXIT_SUCCESS;
 
