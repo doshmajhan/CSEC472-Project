@@ -20,24 +20,49 @@ int pam_creds_check(){
 
         :returns retval: the status of the check, 1 if true 0 if not
     */
-    const char *username;
+    char *username;
     pam_handle_t *pamh=NULL;
-    int retval;
-    
-    retval = pam_start("login", username, &conv, &pamh);
-    retval = pam_get_user(pamh, &username, "Username: ");
+    int retval, ch, toolong;
+    size_t len = 30;
+    /*retval = pam_start("login", username, &conv, &pamh);
+    //retval = pam_get_user(pamh, &username, "Username: ");
     if(retval != PAM_SUCCESS){
 
         return retval;
+    }*/
+    printf("Username: ");
+    if ((username = malloc(len)) == NULL){
+	fprintf(stderr, "Out of memory\n");
+	exit(1);
     }
-    retval = pam_start("check_user", username, &conv, &pamh);
+    if(fgets(username, len, stdin) == NULL){
+	exit(1);
+    }
+    if(username[strlen(username)-1] != '\n'){
+	toolong = 0;
+	while(((ch = getchar()) != '\n') && (ch != EOF)){
+	    toolong = 1;
+	}
+	if(toolong == 1){
+	    printf("Input too long, max size is 30\n");
+	    exit(1);
+	}
+    }
+    username[strlen(username)-1] = '\0';
+    printf("%s\n", username);
+
+    retval = pam_start("login", username, &conv, &pamh);
+    //retval = pam_get_user(pamh, &username, "Username: ");
+    //retval = pam_start("check_user", username, &conv, &pamh);
     if(retval == PAM_SUCCESS){
         retval = pam_authenticate(pamh, 0);
     }
+    printf("%d\n", retval);
     if(retval == PAM_SUCCESS){
         retval = pam_acct_mgmt(pamh, 0);
     }
-
+    printf("%d\n", retval);
+    printf("Username: %s\n", username);
     if(retval == PAM_SUCCESS){
         fprintf(stdout, "Authenticated\n");
         fprintf(stdout, "Change password?(Y/N):");
