@@ -1,0 +1,3 @@
+comment out the first line of /etc/pam.d/login
+change lines 6 & 11 to be uid >= 0 in /etc/pam.d/password-auth and /etc/pam.d/system-auth
+

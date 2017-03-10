@@ -24,12 +24,6 @@ int pam_creds_check(){
     pam_handle_t *pamh=NULL;
     int retval, ch, toolong;
     size_t len = 30;
-    /*retval = pam_start("login", username, &conv, &pamh);
-    //retval = pam_get_user(pamh, &username, "Username: ");
-    if(retval != PAM_SUCCESS){
-
-        return retval;
-    }*/
     printf("Username: ");
     if ((username = malloc(len)) == NULL){
 	fprintf(stderr, "Out of memory\n");
@@ -49,19 +43,14 @@ int pam_creds_check(){
 	}
     }
     username[strlen(username)-1] = '\0';
-    //printf("%s\n", username);
 
     retval = pam_start("login", username, &conv, &pamh);
-    //retval = pam_get_user(pamh, &username, "Username: ");
-    //retval = pam_start("check_user", username, &conv, &pamh);
     if(retval == PAM_SUCCESS){
         retval = pam_authenticate(pamh, 0);
     }
-    //printf("%d\n", retval);
     if(retval == PAM_SUCCESS){
         retval = pam_acct_mgmt(pamh, 0);
     }
-    //printf("%d\n", retval);
     printf("Username: %s\n", username);
     if(retval == PAM_SUCCESS){
         fprintf(stdout, "Authenticated\n");
@@ -69,7 +58,6 @@ int pam_creds_check(){
         int ans = getchar();
         if(ans == 'Y'){
             retval = pam_chauthtok(pamh, PAM_SILENT);
-	    //printf("%d\n", retval);
         }
     }
     else{
@@ -87,12 +75,9 @@ int pam_creds_check(){
 
 int main(){
     int orig_uid = getuid();
-    printf("%d\n", getuid());
     setuid(0);
-    printf("%d\n", getuid());
     pam_creds_check();
     setuid(orig_uid);
-    printf("%d\n",  getuid());
     return EXIT_SUCCESS;
 
 }

@@ -20,7 +20,7 @@ class flask_db:
 
     def __init__(self):
         self.db = MySQLdb.connect(host='localhost', user='root',
-                         passwd='itsvariable17', db='webapp')
+                         passwd='con162ess', db='webapp')
 
 
 UPLOAD_FOLDER = '/var/www/CSEC472-Project/uploads'

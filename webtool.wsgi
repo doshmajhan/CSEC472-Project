@@ -1,3 +1,3 @@
 import sys
-sys.path.append('/var/www/CSEC472-Project')
+sys.path.append('/var/www/webapp')
 from webapp import app as application
